@@ -15,6 +15,7 @@
     "vue": "^2.6.10",
     "vue-analytics": "^5.17.2",
     "vue-cookie-law": "^1.10.0",
+    "vue-cookies": "^1.5.13",
     "vue-loading-overlay": "^3.2.0",
     "vue-recaptcha": "^1.2.0",
     "vue-router": "^3.0.3",

@@ -10,36 +10,19 @@
                     dismissible
                     >{{ alertMessage }}</v-alert
                 >
-                <v-form ref="form" v-model="valid" lazy-validation>
-                    <v-text-field
-                        prepend-icon="account_box"
-                        name="name"
-                        label="Name or nickname"
-                        type="text"
-                        v-model="name"
-                        required
+                <label v-if="session.config.moderator === user.id">You are the moderator</label>
+                <v-card
+                        class="mx-3 mb-5"
+                        max-width="400"
+                        v-for="(user, id, i) in session.users"
+                        :key="i"
                     >
-                    </v-text-field>
-                    <v-spacer></v-spacer>
-                    <v-btn
-                        color="primary"
-                        @click="startNewSession"
-                        >Start new session</v-btn>
-                    <v-spacer></v-spacer>
-                    <v-text-field
-                        prepend-icon="email"
-                        name="sessionId"
-                        label="Session ID"
-                        type="text"
-                        v-model="sessionId"
-                        required
-                    >
-                    </v-text-field>
-                    <v-btn
-                        color="primary"
-                        @click="joinSession"
-                        >Join session</v-btn>
-                </v-form>
+                        <v-card-title
+                            class="headline mb-2 blue lighten-1 white--text"
+                            >{{ user.name }}</v-card-title
+                        >
+                    </v-card>
+
             </v-flex>
         </v-layout>
   </v-container>
@@ -52,9 +35,16 @@ export default {
     return {
       alert: false,
       alertMessage: "",
-      name: "",
-      sessionId: ""
+      session: this.$store.state.activeSession,
+      user: this.$store.state.user
     };
+  },
+  mounted() {
+    if (!this.$store.state.user) {
+      this.$router.push("/" + this.$route.params.sessionId);
+    }
+
+    this.$store.dispatch("subscribeToSession", this.$route.params.sessionId);
   },
   methods: {
     startNewSession() {

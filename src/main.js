@@ -6,6 +6,7 @@ import vuetify from './plugins/vuetify';
 import '@babel/polyfill';
 import '@/firebase/';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
+import VueCookies from 'vue-cookies';
 
 import firebase from 'firebase';
 
@@ -15,5 +16,6 @@ app = new Vue({
     router,
     store,
     vuetify,
+    VueCookies,
     render: h => h(App)
 }).$mount('#app');

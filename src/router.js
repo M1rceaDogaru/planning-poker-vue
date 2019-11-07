@@ -9,12 +9,12 @@ export default new Router({
     base: process.env.BASE_URL,
     routes: [
         {
-            path: '/',
+            path: '/:sessionId?',
             name: 'home',
             component: Home
         },
         {
-            path: '/planning',
+            path: '/planning/:sessionId',
             name: 'planning',
             component: () => import('./views/Planning.vue')
         }
