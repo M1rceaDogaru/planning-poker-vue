@@ -10,7 +10,11 @@
                     dismissible
                     >{{ alertMessage }}</v-alert
                 >
-                <label v-if="session.config.moderator === user.id">You are the moderator</label>
+                <div v-if="session.config.moderator === user.id">
+                  <v-label>You are the moderator</v-label>
+                  <v-btn class="ml-3 mb-2 primary" @click="startVoting()">Start voting</v-btn>
+                </div>
+                <v-label v-if="session.config.isVoting">VOTING IN PROGRESS</v-label>
                 <v-card
                         class="mx-3 mb-5"
                         max-width="400"
@@ -22,7 +26,6 @@
                             >{{ user.name }}</v-card-title
                         >
                     </v-card>
-
             </v-flex>
         </v-layout>
   </v-container>
@@ -47,8 +50,8 @@ export default {
     this.$store.dispatch("subscribeToSession", this.$route.params.sessionId);
   },
   methods: {
-    startNewSession() {
-
+    startVoting() {
+      this.$store.dispatch("startVoting", this.session.id);
     },
     joinSession() {
       

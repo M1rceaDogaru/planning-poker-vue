@@ -18,6 +18,7 @@ export default new Vuex.Store({
             state.user = payload;
         },
         updateActiveSession(state, session) {
+            state.activeSession.id = session.id;
             state.activeSession.config = session.config,
             state.activeSession.users = session.users
         }
@@ -46,8 +47,19 @@ export default new Vuex.Store({
             });
 
             sessionRef.on('value', snapshot => {
-                commit('updateActiveSession', snapshot.val());
+                var session = snapshot.val();
+                session.id = sessionId;
+                commit('updateActiveSession', session);
             });
+        },
+        startVoting({ state }, sessionId) {
+            firebase
+                .database()
+                .ref("sessions/" + sessionId + "/config")
+                .update({
+                    isVoting: true,
+                    votingTimer: 15
+                });
         }
     }
 });
