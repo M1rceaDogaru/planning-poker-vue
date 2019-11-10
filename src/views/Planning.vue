@@ -12,20 +12,42 @@
                 >
                 <div v-if="session.config.moderator === user.id">
                   <v-label>You are the moderator</v-label>
-                  <v-btn class="ml-3 mb-2 primary" @click="startVoting()">Start voting</v-btn>
+                  <br/>
+                  <v-btn v-if="!session.config.isVoting" class="ml-3 mb-2 primary" @click="startVoting()">Start voting</v-btn>
+                  <v-btn v-if="session.config.isVoting" class="ml-3 mb-2 primary" @click="stopVoting()">Stop voting</v-btn>
                 </div>
-                <v-label v-if="session.config.isVoting">VOTING IN PROGRESS</v-label>
+                <v-label v-if="session.config.isVoting">VOTING IN PROGRESS. PICK A NUMBER.</v-label>
+
+                <v-row>
+                  <v-card
+                          class="mx-3 mb-5"
+                          width="60"
+                          v-for="(value, id, i) in values"
+                          :key="i"
+                          @click="castVote(value)"
+                      >
+                      <v-card-title v-if="session.config.vote===value"
+                          class="headline mb-2 green lighten-1 white--text"
+                          >{{ value }}</v-card-title
+                      >
+                      <v-card-title v-else
+                          class="headline mb-2 blue lighten-1 white--text"
+                          >{{ value }}</v-card-title
+                      >
+                  </v-card>
+                </v-row>
+                
                 <v-card
                         class="mx-3 mb-5"
                         max-width="400"
                         v-for="(user, id, i) in session.users"
                         :key="i"
                     >
-                        <v-card-title
-                            class="headline mb-2 blue lighten-1 white--text"
-                            >{{ user.name }}</v-card-title
-                        >
-                    </v-card>
+                    <v-card-title
+                        class="headline mb-2 blue lighten-1 white--text"
+                        >{{ user.name }}</v-card-title
+                    >
+                </v-card>                
             </v-flex>
         </v-layout>
   </v-container>
@@ -39,7 +61,8 @@ export default {
       alert: false,
       alertMessage: "",
       session: this.$store.state.activeSession,
-      user: this.$store.state.user
+      user: this.$store.state.user,
+      values: [0,1,2,3,5,8,13,21,34,55,89]
     };
   },
   mounted() {
@@ -53,8 +76,12 @@ export default {
     startVoting() {
       this.$store.dispatch("startVoting", this.session.id);
     },
-    joinSession() {
-      
+    stopVoting() {
+      this.$store.dispatch("stopVoting", this.session.id);
+    },
+    castVote(value) {
+      this.session.config.vote=value;
+      //TODO: push vote to remote
     }
   }
 };

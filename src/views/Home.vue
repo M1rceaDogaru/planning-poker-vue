@@ -3,6 +3,7 @@
         <LoadingSpinner v-if="loading"></LoadingSpinner>
         <v-layout v-else align-center justify-center>
             <v-flex xs12 sm8 md4>
+              <h1 class="blue--text">MOKER</h1>
                 <v-alert
                     v-model="alert"
                     type="error"

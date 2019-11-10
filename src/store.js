@@ -43,7 +43,7 @@ export default new Vuex.Store({
             
             sessionRef.child("users/" + state.user.id).set({
                 name: state.user.name,
-                vote: 0
+                vote: -1
             });
 
             sessionRef.on('value', snapshot => {
@@ -59,6 +59,15 @@ export default new Vuex.Store({
                 .update({
                     isVoting: true,
                     votingTimer: 15
+                });
+        },
+        stopVoting({ state }, sessionId) {
+            firebase
+                .database()
+                .ref("sessions/" + sessionId + "/config")
+                .update({
+                    isVoting: false,
+                    votingTimer: 0
                 });
         }
     }
