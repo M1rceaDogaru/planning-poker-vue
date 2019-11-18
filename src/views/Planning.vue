@@ -26,10 +26,11 @@
                           :key="i"
                           @click="castVote(value)"
                       >
-                      <v-card-title v-if="session.config.vote===value"
+                      <v-card-title v-if="session.users[user.id].vote === value"
                           class="headline mb-2 green lighten-1 white--text"
                           >{{ value }}</v-card-title
                       >
+
                       <v-card-title v-else
                           class="headline mb-2 blue lighten-1 white--text"
                           >{{ value }}</v-card-title
@@ -45,7 +46,7 @@
                     >
                     <v-card-title
                         class="headline mb-2 blue lighten-1 white--text"
-                        >{{ user.name }}</v-card-title
+                        >{{ user.name }} - {{ user.vote }} </v-card-title
                     >
                 </v-card>                
             </v-flex>
@@ -74,14 +75,26 @@ export default {
   },
   methods: {
     startVoting() {
-      this.$store.dispatch("startVoting", this.session.id);
+      for (var user in this.session.users) {
+        this.session.users[user].vote = -1;
+      }
+
+      this.$store.dispatch("startVoting", {
+        sessionId: this.session.id,
+        users: this.session.users
+      });
     },
     stopVoting() {
       this.$store.dispatch("stopVoting", this.session.id);
     },
     castVote(value) {
-      this.session.config.vote=value;
-      //TODO: push vote to remote
+      this.$store.dispatch("updateUserState", { 
+        sessionId: this.session.id, 
+        userId: this.user.id, 
+        data: { 
+          vote: value 
+        } 
+      });
     }
   }
 };

@@ -52,7 +52,12 @@ export default new Vuex.Store({
                 commit('updateActiveSession', session);
             });
         },
-        startVoting({ state }, sessionId) {
+        startVoting({ state }, { sessionId, users }) {
+            firebase
+                .database()
+                .ref("sessions/" + sessionId + "/users")
+                .update(users);
+
             firebase
                 .database()
                 .ref("sessions/" + sessionId + "/config")
@@ -69,6 +74,12 @@ export default new Vuex.Store({
                     isVoting: false,
                     votingTimer: 0
                 });
+        },
+        updateUserState({ state }, { sessionId, userId, data }) {
+            firebase
+                .database()
+                .ref("sessions/" + sessionId + "/users/" + userId)
+                .update(data);
         }
     }
 });
