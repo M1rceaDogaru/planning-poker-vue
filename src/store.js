@@ -75,6 +75,14 @@ export default new Vuex.Store({
                     votingTimer: 0
                 });
         },
+        updateVoting({ state }, { sessionId, timer }) {
+            firebase
+                .database()
+                .ref("sessions/" + sessionId + "/config")
+                .update({
+                    votingTimer: timer
+                });
+        },
         updateUserState({ state }, { sessionId, userId, data }) {
             firebase
                 .database()
