@@ -87,6 +87,7 @@ export default {
             isVoting: false,
             votingTimer: 0,
             votingResult: 0,
+            cardValues: "0,1,2,3,5,8,∞,?,☕" //TODO: get these from user prefs
           },          
           users: {}
         })

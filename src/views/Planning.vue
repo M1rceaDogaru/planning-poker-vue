@@ -1,6 +1,46 @@
 <template>
   <v-container fill-height>
         <v-layout align-center justify-center>
+            <v-dialog v-model="updateCardsDialog" persistent max-width="600px">
+              <v-card>
+                <v-card-title>
+                    <span class="headline">Update Cards</span>
+                </v-card-title>
+                <v-card-text>
+                    <v-container>
+                        <v-form
+                            ref="cards"
+                            v-model="updateCardsValid"
+                            lazy-validation
+                        >
+                            <v-row>
+                                <v-text-field
+                                    label="Card values"
+                                    v-model="cardValues"
+                                    required
+                                    :rules="cardValuesRequiredRules"
+                                ></v-text-field>
+                            </v-row>
+                        </v-form>
+                    </v-container>
+                </v-card-text>
+                <v-card-actions>
+                    <div class="flex-grow-1"></div>
+                    <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="updateCardsDialog = false"
+                        >Close</v-btn
+                    >
+                    <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="updateCardValues"
+                        >Update</v-btn
+                    >
+                </v-card-actions>
+            </v-card>
+            </v-dialog>
             <v-row>
                 <v-alert
                     v-model="alert"
@@ -16,9 +56,10 @@
                     <br/>
                     <v-btn v-if="!session.config.isVoting" class="mb-2 primary" @click="startVoting()">Start voting</v-btn>
                     <v-btn v-else class="mb-2 primary" @click="stopVoting()">Stop voting</v-btn>
+                    <v-btn v-if="!session.config.isVoting" class="ml-3 mb-2 primary" @click="showUpdateCardValues()">Edit cards</v-btn>
                   </div>
 
-                  <v-label>VOTING TIME</v-label>
+                  <v-label>VOTING TIMER</v-label>
                   <h1>{{ session.config.votingTimer }} sec.</h1>
                 
                   <br/>
@@ -31,11 +72,11 @@
                     <v-card
                             class="mx-3 mb-5"
                             width="60"
-                            v-for="(value, id, i) in values"
+                            v-for="(value, id, i) in cards"
                             :key="i"
                             @click="castVote(value)"
                         >
-                        <v-card-title v-if="session.users[user.id].vote === value"
+                        <v-card-title v-if="session.users[user.id].vote == value"
                             class="headline mb-2 green lighten-1 white--text"
                             >{{ value }}</v-card-title
                         >
@@ -59,7 +100,7 @@
                           v-for="(user, id, i) in session.users"
                           :key="i"
                       >
-                      <v-card-title v-if="user.vote > -1"
+                      <v-card-title v-if="cards.includes(user.vote)"
                           class="headline mb-2 green lighten-1 white--text">
                           <div>{{ user.name }}</div>
                           <v-spacer />
@@ -87,7 +128,12 @@ export default {
       alertMessage: "",
       session: this.$store.state.activeSession,
       user: this.$store.state.user,
-      values: [0,1,2,3,5,8,13,21,34,55,89]
+      updateCardsDialog: false,
+      updateCardsValid: false,
+      cardValues: "",
+      cardValuesRequiredRules: [
+          v => !!v || 'At least one card value is required'
+      ]
     };
   },
   mounted() {
@@ -101,14 +147,20 @@ export default {
     isModerator() {
       return this.session.config.moderator === this.user.id;
     },
+    cards() {
+      if (!this.session) return [];
+      return this.session.config.cardValues.split(",");
+    },
     votingResult() {
       var numberOfVotes = 0;
       var voteSum = 0;
       for (var user in this.session.users) {
         var userVote = this.session.users[user].vote;
-        if (userVote > -1) {
+        var voteNumber = parseInt(userVote);
+
+        if (voteNumber > -1) {
           numberOfVotes += 1;
-          voteSum += userVote;
+          voteSum += voteNumber;
         }
       }
 
@@ -120,6 +172,22 @@ export default {
     }
   },
   methods: {
+    showUpdateCardValues() {
+      if (!this.isModerator) return;
+      this.cardValues = this.session.config.cardValues;
+      this.updateCardsDialog = true;
+    },
+    updateCardValues() {
+      if (!this.isModerator) return;
+      if (!this.$refs.cards.validate()) return;
+
+      this.cardValues = this.cardValues.replace(" ", "");
+      this.$store.dispatch("updateCards", {
+        sessionId: this.session.id,
+        cardValues: this.cardValues 
+      });
+      this.updateCardsDialog = false;
+    },
     startVoting() {
       for (var user in this.session.users) {
         this.session.users[user].vote = -1;
@@ -160,7 +228,7 @@ export default {
       });
     },
     displayUserVote(user) {
-      return !this.session.config.isVoting && user.vote > -1 ? user.vote : "";
+      return !this.session.config.isVoting && this.cards.includes(user.vote) ? user.vote : "";
     }
   }
 };
