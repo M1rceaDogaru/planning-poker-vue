@@ -17,6 +17,11 @@ export default new Router({
             path: '/planning/:sessionId',
             name: 'planning',
             component: () => import('./views/Planning.vue')
+        },
+        {
+            path: '/legal/stuff',
+            name: 'legal',
+            component: () => import('./views/Legal.vue')
         }
     ]
 });
